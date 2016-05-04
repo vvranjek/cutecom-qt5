@@ -112,6 +112,10 @@ QCPPDialogImpl::QCPPDialogImpl(QWidget* parent)
 
    disconnectTTY();
 
+   if(autoConnectCb->isChecked()){
+       connectTTY();
+   }
+
    m_cmdLe->installEventFilter(this);
 }
 
@@ -209,7 +213,7 @@ void QCPPDialogImpl::resizeEvent(QResizeEvent *e)
    saveSettings();
 }
 
-void QCPPDialogImpl::saveSettings()
+void QCPPDialogImpl::   saveSettings()
 {
    QSettings settings;
    settings.setValue("/cutecom/HardwareHandshake", m_hardwareCb->isChecked());
@@ -236,6 +240,8 @@ void QCPPDialogImpl::saveSettings()
    settings.setValue("/cutecom/LogFileName", m_logFileLe->text());
 
    settings.setValue("/cutecom/AppendToLogFile", m_logAppendCb->currentIndex());
+
+   settings.setValue("/cutecom/AutoConnect", autoConnectCb->isChecked());
 
 
    QString currentDevice=m_deviceCb->currentText();
@@ -302,6 +308,8 @@ void QCPPDialogImpl::readSettings()
    m_logFileLe->setText(settings.value("/cutecom/LogFileName", QDir::homePath()+"/cutecom.log").toString());
 
    m_logAppendCb->setCurrentIndex(settings.value("/cutecom/AppendToLogFile", 0).toInt());
+
+   autoConnectCb->setChecked(settings.value("/cutecom/AutoConnect", true).toBool());
 
    int x=settings.value("/cutecom/width", -1).toInt();
    int y=settings.value("/cutecom/height", -1).toInt();
@@ -1289,8 +1297,7 @@ void QCPPDialogImpl::readData(int fd)
          else
          {
             unsigned int b=*c;
-            snprintf(buf, 16, "\\0x%02x", b & 0xff);
-            text+=buf;
+            text.append(b);
          }
       }
       c++;
@@ -1401,3 +1408,8 @@ void QCPPDialogImpl::chooseLogFile()
    }
 }
 
+
+void QCPPDialogImpl::on_m_deviceCb_currentIndexChanged(int index)
+{
+    connectTTY();
+}

@@ -145,6 +145,8 @@ class QCPPDialogImpl:public QWidget, public Ui::CuteCommDlg
 
       QFile m_logFile;
 
+private slots:
+      void on_m_deviceCb_currentIndexChanged(int index);
 };
 
 #endif
